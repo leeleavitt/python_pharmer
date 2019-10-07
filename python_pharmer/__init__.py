@@ -3,14 +3,38 @@ from nd2reader import ND2Reader
 import glob
 import numpy as np
 from skimage import img_as_bool, measure
-from skimage.external.tifffile import imread
+from skimage.external.tifffile import imread, imsave
 import time
 import pandas as pd
 from scipy import ndimage
 from numba import jit
 import re
 
+#################################################
+#ROI CHECKER, This is need to only process ROI's that are present in
+#both the full size ROI and the small size ROI.
+########################################################
 
+#This function is used to test that the rois from the larger image are
+# present in the smaller image. If an ROI is missing in the smaller image
+def roi_checker():
+    roi1024 = imread('roi.1024.tif') 
+    roi2048 = imread('roi.2048.tif') 
+    
+    #Now that i have the rois loaded i want to see which ROI is not in the other
+    roi1024unique = np.unique(roi1024)
+    roi2048unique = np.unique(roi2048)
+    
+    if len(np.setdiff1d(roi2048unique, roi1024unique)) == 1 :
+        roiToRemove = np.setdiff1d(roi2048unique, roi1024unique)
+        print("removing that roi!")
+        for i in range(0,len(roiToRemove)-1):
+            roi2048[roi2048 ==  roiToRemove[i]] = 0
+        
+        imsave('roi.2048.tif',roi2048)
+    else:
+        print('rois are good to go')
+    
 
 #######################################
 #Find Video
@@ -146,10 +170,12 @@ def video_roi_extractor_faster(video_file = None):
     print("Write complete")
 
 # =============================================================================
-# os.chdir("Y:/Cris Urcino/190505/190505.63.m.p2 ATP.20uM repeat pulses")
+# # =============================================================================
+# os.chdir("Y:/CS Niu/191004.38.m.m3.p4 K NCS112_10uM")
 # function_start_timer = time.time()
 # video_roi_extractor_faster('video002.nd2')
 # function_end_timer = time.time()
-# print("It took ", function_end_timer-function_start_timer)
+# print("it took ", function_end_timer-function_start_timer)
+# # =============================================================================
+# 
 # =============================================================================
-

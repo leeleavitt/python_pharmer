@@ -27,14 +27,8 @@ def roi_checker():
     
     if len(np.setdiff1d(roi2048unique, roi1024unique)) == 1 :
         roiToRemove = np.setdiff1d(roi2048unique, roi1024unique)
-        print("removing that roi!")
-        for i in range(0,len(roiToRemove)-1):
-            roi2048[roi2048 ==  roiToRemove[i]] = 0
-        
-        imsave('roi.2048.tif',roi2048)
-    else:
-        print('rois are good to go')
-    
+        #Now that we have found the roi giving us a head ache, lets return its value
+        return np.where(roi2048unique==roiToRemove)[0]
 
 #######################################
 #Find Video
